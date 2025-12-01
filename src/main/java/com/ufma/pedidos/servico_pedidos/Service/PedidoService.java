@@ -21,23 +21,47 @@ public class PedidoService {
     }
 
     public PedidoResponseDto criarPedido(PedidoRequestDto dto) {
+
         Pedido pedido = new Pedido();
         pedido.setClienteId(dto.clienteId());
         pedido.setDataHora(LocalDateTime.now());
         pedido.setStatus(StatusPedido.RECEBIDO);
 
-        var itens = dto.itens().stream().map(item ->
-                new ItemPedido(null, item.nome(), item.quantidade())
-        ).collect(Collectors.toList());
+        // Adiciona os itens corretamente
+        for (var itemDto : dto.itens()) {
+            ItemPedido item = new ItemPedido();
+            item.setNome(itemDto.nome());
+            item.setQuantidade(itemDto.quantidade());
 
-        pedido.setItens(itens);
+            // RELACIONAMENTO CORRETO
+            item.setPedido(pedido);
+            pedido.getItens().add(item);
+        }
 
+        // Agora o Hibernate vai salvar pedido e itens com pedido_id corretamente
         Pedido salvo = repository.save(pedido);
 
+        // Publica o evento
         publisher.publicar("pedidos.recebidos", salvo);
 
         return toDTO(salvo);
     }
+
+//    private PedidoResponseDto toDTO(Pedido pedido) {
+//        return new PedidoResponseDto(
+//                pedido.getId(),
+//                pedido.getClienteId(),
+//                pedido.getStatus(),
+//                pedido.getDataHora(),
+//                pedido.getItens().stream().map(i ->
+//                        new ItemPedidoResponseDto(
+//                                i.getId(),
+//                                i.getNome(),
+//                                i.getQuantidade()
+//                        )
+//                ).toList()
+//        );
+//    }
 
     public PedidoResponseDto buscar(long id) {
         return repository.findById(id)

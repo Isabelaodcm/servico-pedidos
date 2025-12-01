@@ -25,8 +25,7 @@ public class PedidoController {
     }
 
     @PatchMapping("/{id}/status")
-    public PedidoResponseDto atualizarStatus(@PathVariable long id,
-                                             @RequestBody AtualizarStatusDto dto) {
+    public PedidoResponseDto atualizarStatus(@PathVariable long id, @RequestBody AtualizarStatusDto dto) {
         return service.atualizarStatus(id, dto);
     }
 

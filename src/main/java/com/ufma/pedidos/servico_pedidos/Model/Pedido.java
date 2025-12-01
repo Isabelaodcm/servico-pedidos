@@ -2,63 +2,72 @@ package com.ufma.pedidos.servico_pedidos.Model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "pedido", schema = "pedidos")
 public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime dataHora;
-
-    @Enumerated(EnumType.STRING)
-    private StatusPedido status;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<ItemPedido> itens;
-
     private Long clienteId;
 
+    private LocalDateTime dataHora;
+
+    
     public Long getId() {
-        return id;
-    }
+		return id;
+	}
 
-    public LocalDateTime getDataHora() {
-        return dataHora;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public StatusPedido getStatus() {
-        return status;
-    }
+	public Long getClienteId() {
+		return clienteId;
+	}
 
-    public List<ItemPedido> getItens() {
-        return itens;
-    }
+	public void setClienteId(Long clienteId) {
+		this.clienteId = clienteId;
+	}
 
-    public Long getClienteId() {
-        return clienteId;
-    }
+	public LocalDateTime getDataHora() {
+		return dataHora;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setDataHora(LocalDateTime dataHora) {
+		this.dataHora = dataHora;
+	}
 
-    public void setDataHora(LocalDateTime dataHora) {
-        this.dataHora = dataHora;
-    }
+	public StatusPedido getStatus() {
+		return status;
+	}
 
-    public void setStatus(StatusPedido status) {
-        this.status = status;
-    }
+	public void setStatus(StatusPedido status) {
+		this.status = status;
+	}
 
-    public void setItens(List<ItemPedido> itens) {
-        this.itens = itens;
-    }
+	public List<ItemPedido> getItens() {
+		return itens;
+	}
 
-    public void setClienteId(Long clienteId) {
-        this.clienteId = clienteId;
+	public void setItens(List<ItemPedido> itens) {
+		this.itens = itens;
+	}
+
+	@Enumerated(EnumType.STRING)
+    private StatusPedido status;
+
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemPedido> itens = new ArrayList<>();
+
+    public void addItem(ItemPedido item) {
+        itens.add(item);
+        item.setPedido(this);
     }
 }
+
 
