@@ -29,9 +29,14 @@ public class PedidoController {
         return service.atualizarStatus(id, dto);
     }
 
-    @PostMapping("/{id}/finalizar")
+    @PutMapping("/{id}/iniciar")
+    public PedidoResponseDto iniciar(@PathVariable long id) {
+        return service.iniciarPreparo(id);
+    }
+    
+    @PutMapping("/{id}/finalizar")
     public PedidoResponseDto finalizar(@PathVariable long id) {
-        return service.finalizar(id);
+        return service.finalizarPreparo(id);
     }
 }
 

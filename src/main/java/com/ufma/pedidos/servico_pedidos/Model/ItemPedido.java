@@ -18,6 +18,14 @@ public class ItemPedido {
     @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
 
+	public ItemPedido(Object object, String nome2, int quantidade2) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public ItemPedido() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public Long getId() {
 		return id;
 	}
