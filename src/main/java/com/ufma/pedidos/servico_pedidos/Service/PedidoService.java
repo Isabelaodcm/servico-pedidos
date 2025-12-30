@@ -24,16 +24,19 @@ public class PedidoService {
     private final MensageriaPublisher publisher;
     
     private final CozinhaClient cozinhaClient;
+    
+    private final PedidoPublisher pedidoPublisher;
 
 //    public PedidoService(PedidoRepository repository, MensageriaPublisher publisher) {
 //        this.repository = repository;
 //        this.publisher = publisher;
 //    }
     
-    public PedidoService(PedidoRepository repository, MensageriaPublisher publisher,  CozinhaClient cozinhaClient) {
+    public PedidoService(PedidoRepository repository, MensageriaPublisher publisher,  CozinhaClient cozinhaClient, PedidoPublisher pedidoPublisher) {
 		this.repository = repository;
 		this.publisher = publisher;
 		this.cozinhaClient = cozinhaClient;
+		this.pedidoPublisher = pedidoPublisher;
 		}
 
     public PedidoResponseDto criarPedido(PedidoRequestDto dto) {
@@ -42,8 +45,8 @@ public class PedidoService {
         pedido.setClienteId(dto.clienteId());
         pedido.setDataHora(LocalDateTime.now());
         pedido.setStatus(StatusPedido.RECEBIDO);
+//        pedido.setStatus(StatusPedido.EM_PREPARO);
 
-        //  CRIA E ASSOCIA OS ITENS CORRETAMENTE
         dto.itens().forEach(itemDto -> {
             ItemPedido item = new ItemPedido();
             item.setNome(itemDto.nome());
@@ -55,7 +58,14 @@ public class PedidoService {
 
         System.out.println("ID DO PEDIDO: " + salvo.getId());
         // integração com cozinha
-        cozinhaClient.enviarPedido(salvo);
+//        cozinhaClient.enviarPedido(salvo);
+
+
+        pedidoPublisher.enviarStatus(
+                pedido.getId(),
+                pedido.getClienteId(),
+                pedido.getStatus().name()
+        );
 
         return toDTO(salvo);
     }
