@@ -78,17 +78,17 @@ public class PedidoService {
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
     }
 
-    public PedidoResponseDto atualizarStatus(long id, AtualizarStatusDto dto) {
-        Pedido pedido = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
-
-        pedido.setStatus(dto.status());
-        repository.save(pedido);
-
-        publisher.publicar("pedidos.status", pedido);
-
-        return toDTO(pedido);
-    }
+//    public PedidoResponseDto atualizarStatus(long id, AtualizarStatusDto dto) {
+//        Pedido pedido = repository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+//
+//        pedido.setStatus(dto.status());
+//        repository.save(pedido);
+//
+//        publisher.publicar("pedidos.status", pedido);
+//
+//        return toDTO(pedido);
+//    }
 
 //    public PedidoResponseDto finalizar(long id) {
 //        Pedido pedido = repository.findById(id)
@@ -112,10 +112,16 @@ public class PedidoService {
             throw new RuntimeException("Pedido não está em preparo");
         }
 
-        cozinhaClient.finalizarPedido(pedidoId);
+//        cozinhaClient.finalizarPedido(pedidoId);
 
         pedido.setStatus(StatusPedido.PRONTO);
         repository.save(pedido);
+        
+        pedidoPublisher.enviarStatus(
+                pedido.getId(),
+                pedido.getClienteId(),
+                pedido.getStatus().name()
+        );
 
         return toDTO(pedido);
     }
@@ -131,14 +137,42 @@ public class PedidoService {
             throw new RuntimeException("Pedido não pode iniciar preparo");
         }
 
-        cozinhaClient.iniciarPreparo(pedidoId);
+//        cozinhaClient.iniciarPreparo(pedidoId);
 
         pedido.setStatus(StatusPedido.EM_PREPARO);
         repository.save(pedido);
+        
+        pedidoPublisher.enviarStatus(
+                pedido.getId(),
+                pedido.getClienteId(),
+                pedido.getStatus().name()
+        );
 
         return toDTO(pedido);
     }
 
+
+    @Transactional
+    public PedidoResponseDto aguardarRetirada(Long pedidoId) {
+
+        Pedido pedido = repository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+
+        if (pedido.getStatus() != StatusPedido.PRONTO) {
+            throw new RuntimeException("Pedido ainda não está pronto para retirada");
+        }
+
+        pedido.setStatus(StatusPedido.AGUARDANDO_RETIRADA);
+        repository.save(pedido);
+
+        pedidoPublisher.enviarStatus(
+                pedido.getId(),
+                pedido.getClienteId(),
+                pedido.getStatus().name()
+        );
+
+        return toDTO(pedido);
+    }
 
     private PedidoResponseDto toDTO(Pedido p) {
         return new PedidoResponseDto(

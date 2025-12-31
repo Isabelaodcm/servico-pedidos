@@ -24,10 +24,10 @@ public class PedidoController {
         return service.buscar(id);
     }
 
-    @PatchMapping("/{id}/status")
-    public PedidoResponseDto atualizarStatus(@PathVariable long id, @RequestBody AtualizarStatusDto dto) {
-        return service.atualizarStatus(id, dto);
-    }
+//    @PatchMapping("/{id}/status")
+//    public PedidoResponseDto atualizarStatus(@PathVariable long id, @RequestBody AtualizarStatusDto dto) {
+//        return service.atualizarStatus(id, dto);
+//    }
 
     @PutMapping("/{id}/iniciar")
     public PedidoResponseDto iniciar(@PathVariable long id) {
@@ -37,6 +37,11 @@ public class PedidoController {
     @PutMapping("/{id}/finalizar")
     public PedidoResponseDto finalizar(@PathVariable long id) {
         return service.finalizarPreparo(id);
+    }
+    
+    @PutMapping("/{id}/aguardar")
+    public PedidoResponseDto aguardarRetirada(@PathVariable long id) {
+        return service.aguardarRetirada(id);
     }
 }
 
